@@ -1,0 +1,47 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Edward Duffy <edward70891@gmail.com>
+pkgname=flashprint
+pkgver=3.24.0
+pkgrel=1
+epoch=
+pkgdesc="A slicer software for FlashForge brand 3d printers"
+arch=('x86_64')
+url="http://www.flashforge.com"
+license=('unknown')
+groups=()
+# None of these packages exist on the arch repos under these names :/
+# I've tried to find the closest matches
+#depends=('libqt5gui5' 'libqt5core5a' 'libqt5opengl5' 'libqt5network5' 'libqt5xml5')
+depends=('qt5-base' 'qt5-networkauth' 'qt5-xmlpatterns')
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$pkgname-$pkgver.rar::http://www.flashforge.com/wp-content/uploads/2017/04/flashprint_3.24.0_Linux64.rar")
+noextract=()
+md5sums=('b4d6d5f979bc788790fb1a9ad832cea6')
+validpgpkeys=()
+
+BUILDENV+=('!check')
+
+prepare() {
+    # Unpack the .deb package
+    ar x flashprint_3.24.0_amd64.deb
+    tar -xf data.tar.xz
+}
+
+package() {
+    cp -r etc usr $pkgdir
+    mkdir $pkgdir/usr/bin
+    ln -s /usr/share/FlashPrint/FlashPrint $pkgdir/usr/bin/flashprint
+}
