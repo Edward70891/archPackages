@@ -43,5 +43,6 @@ prepare() {
 package() {
     cp -r etc usr $pkgdir
     mkdir $pkgdir/usr/bin
-    ln -s /usr/share/FlashPrint/FlashPrint $pkgdir/usr/bin/flashprint
+    mv $pkgdir/usr/share/FlashPrint $pkgdir/usr/bin/flashprint-bin
+    ln -s /usr/bin/flashprint-bin/FlashPrint $pkgdir/usr/bin/flashprint
 }
