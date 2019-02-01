@@ -29,7 +29,7 @@ prepare() {
 }
 
 package() {
-    #cp -r etc usr "$pkgdir"
+    cp -r etc usr "$pkgdir"
     #mkdir "$pkgdir"/usr/bin
     #mv "$pkgdir"/usr/share/FlashPrint "$pkgdir"/usr/bin/flashprint-bin
     #ln -s /usr/bin/flashprint-bin/FlashPrint "$pkgdir"/usr/bin/flashprint
