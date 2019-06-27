@@ -7,8 +7,19 @@ url="http://www.imperial.ac.uk/earth-science/research/research-groups/amcg/softw
 license=('LGPLv2.1')
 depends=("python2" "pygtk" "python2-lxml" "trang" "libxml2")
 makedepends=("make" "bzr" "gcc")
-source=("_$pkgname::bzr+https://code.launchpad.net/~spud/spud/trunk")
-md5sums=('SKIP')
+source=(
+"_$pkgname::bzr+https://code.launchpad.net/~spud/spud/trunk"
+"https://raw.githubusercontent.com/Edward70891/archPackages/master/libspud/libspud-bzr.patch"
+)
+md5sums=(
+'SKIP'
+'28b9f3b6cc36700aeded08a4a94ae616'
+)
+
+prepare() {
+    cd "_$pkgname"
+    patch --strip=1 --input="$pkgname.patch"
+}
 
 pkgver() {
     cd "_$pkgname"
