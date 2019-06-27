@@ -1,3 +1,12 @@
+diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond/bin/diamond
+--- spud.orig/diamond/bin/diamond	2019-06-27 12:40:30.612009000 +0100
++++ spud.new/diamond/bin/diamond	2019-06-27 13:33:01.410440124 +0100
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python2
+ 
+ #    This file is part of Diamond.
+ #
 diff --unified --recursive --text spud.orig/diamond/setup.py.in spud.new/diamond/setup.py.in
 --- spud.orig/diamond/setup.py.in	2019-06-27 12:40:30.612009000 +0100
 +++ spud.new/diamond/setup.py.in	2019-06-27 12:46:37.601846206 +0100
@@ -49,3 +58,38 @@ diff --unified --recursive --text spud.orig/diamond/setup.py.in spud.new/diamond
  
  # We now have all the information we need; run setup.
  setup(
+diff --unified --recursive --text spud.orig/Makefile.in spud.new/Makefile.in
+--- spud.orig/Makefile.in	2019-06-27 12:40:30.612009000 +0100
++++ spud.new/Makefile.in	2019-06-27 14:02:18.137691204 +0100
+@@ -59,7 +59,7 @@
+ 	(if test -f .libs/libspud.so; then cp .libs/libspud.so ./libspud.so.0; ln -s libspud.so.0 libspud.so; fi) || true
+ 
+ build-diamond:
+-	cd diamond; python setup.py build; cd ..
++	cd diamond; python2 setup.py build; cd ..
+ 
+ test: unittest
+ 
+@@ -92,18 +92,18 @@
+ 	@INSTALL@ -m644 schema/spud_base.rng $(DESTDIR)@prefix@/share/spud
+ 
+ install-diamond:
+-	cd diamond;	python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
++	cd diamond;	python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
+ 
+ install-pyspud:
+ ifeq ($(origin BUILDING_DEBIAN),undefined)
+-	cd python; python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
++	cd python; python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
+ else
+ 	cd python; for python in $(shell pyversions -r); do $$python setup.py install --prefix=$(DESTDIR)@prefix@ --install-layout=deb; done; cd ..
+ endif
+ 
+ install-dxdiff:
+ ifeq ($(origin BUILDING_DEBIAN),undefined)
+-	cd dxdiff; python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
++	cd dxdiff; python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
+ else
+ 	cd dxdiff; for python in $(shell pyversions -r); do $$python setup.py install --prefix=$(DESTDIR)@prefix@ --install-layout=deb; done; cd ..
+ endif
+Only in spud.new: tags

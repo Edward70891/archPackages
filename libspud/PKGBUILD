@@ -7,32 +7,34 @@ url="http://www.imperial.ac.uk/earth-science/research/research-groups/amcg/softw
 license=('LGPLv2.1')
 depends=("python2" "pygtk" "python2-lxml" "trang" "libxml2")
 makedepends=("make" "bzr" "gcc")
+provides=("python2-dxdiff")
 source=(
 "_$pkgname::bzr+https://code.launchpad.net/~spud/spud/trunk"
-"https://raw.githubusercontent.com/Edward70891/archPackages/master/libspud/libspud-bzr.patch"
+"$pkgname.patch"
 )
-md5sums=(
-'SKIP'
-'28b9f3b6cc36700aeded08a4a94ae616'
-)
+noextract=("_$pkgname" "$pkgname.patch")
+
+md5sums=('SKIP'
+         '58e9bc403796ae370f48e45def3e0c63')
 
 prepare() {
-    cd "_$pkgname"
+    cd "$srcdir/_$pkgname"
     patch --strip=1 --input="$srcdir/$pkgname.patch"
 }
 
 pkgver() {
-    cd "_$pkgname"
+    cd "$srcdir/_$pkgname"
     printf "r%s" "$(bzr revno)"
 }
 
 build() {
-	cd "_$pkgname"
-	./configure --prefix=/usr
-	make
+    cd "$srcdir/_$pkgname"
+    ./configure --prefix=/usr
+    make
 }
 
 package() {
-	cd "_$pkgname"
-	make DESTDIR="$pkgdir/" install
+    cd "$srcdir/_$pkgname"
+    make DESTDIR="$pkgdir/" install
+    rm "$pkgdir/usr/include/tinyxml.h"
 }
