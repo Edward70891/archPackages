@@ -1,5 +1,5 @@
-pkgname='libspud-bzr'
-pkgver=r539
+pkgname='libspud-git'
+pkgver=r781.3852c8f
 pkgrel=1
 pkgdesc="A generic system for defining, writing and processing options files for scientific computer models"
 arch=("x86_64")
@@ -8,15 +8,15 @@ license=('LGPLv2.1')
 depends=("python2" "pygtk" "python2-lxml" "trang" "libxml2")
 makedepends=("make" "bzr" "gcc")
 provides=("python2-dxdiff")
-conflicts=("libspud-git")
+conflicts=("libspud-bzr")
 source=(
-"_$pkgname::bzr+https://code.launchpad.net/~spud/spud/trunk"
+"_$pkgname::git+https://github.com/FluidityProject/spud"
 "$pkgname.patch"
 )
 noextract=("_$pkgname" "$pkgname.patch")
 
 md5sums=('SKIP'
-         '58e9bc403796ae370f48e45def3e0c63')
+         '5f4597f7919ae0c7e7b058a620dbd79b')
 
 prepare() {
     cd "$srcdir/_$pkgname"
@@ -25,7 +25,7 @@ prepare() {
 
 pkgver() {
     cd "$srcdir/_$pkgname"
-    printf "r%s" "$(bzr revno)"
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 build() {
