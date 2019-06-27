@@ -36,5 +36,7 @@ build() {
 package() {
     cd "$srcdir/_$pkgname"
     make DESTDIR="$pkgdir/" install
+    # Remove tinyxml.h since it conflicts with tinyxml
+    # but is identical to the file provided by that package
     rm "$pkgdir/usr/include/tinyxml.h"
 }
