@@ -1,12 +1,1077 @@
 diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond/bin/diamond
 --- spud.orig/diamond/bin/diamond	2019-06-27 15:43:51.174898836 +0100
-+++ spud.new/diamond/bin/diamond	2019-06-27 15:44:46.834660959 +0100
++++ spud.new/diamond/bin/diamond	2019-06-27 17:20:47.224680142 +0100
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/env python2
  
  #    This file is part of Diamond.
  #
+@@ -177,12 +177,12 @@
+ 
+     # if there is only one schema, use that
+     elif len(config.schemata) == 1:
+-      suffix = config.schemata.keys()[0]
++      suffix = list(config.schemata.keys())[0]
+       schemata = config.schemata[suffix]
+     
+     # otherwise ask the user to choose
+     else:
+-      choices = [key + ": " + value[0] for key, value in config.schemata.iteritems()]
++      choices = [key + ": " + value[0] for key, value in config.schemata.items()]
+       choice = dialogs.radio_dialog("Choose a schema", "Choose a schema to use:", choices, logofile[0])
+       suffix = choice.split(":")[0]
+       schemata = config.schemata[suffix]
+@@ -262,7 +262,7 @@
+     unused = schemausage.find_unusedset(schema.Schema(input_schemafile), paths)
+ 
+     for xpath in unused:
+-      print xpath
++      print(xpath)
+ 
+     if unused:
+       return 1
+@@ -277,7 +277,7 @@
+ 
+     try:
+       i = interface.Diamond(gladefile = gladefile, logofile = logofile, suffix = suffix)
+-    except Exception, e:
++    except Exception as e:
+       debug.deprint('Error: ' + str(e), 0)
+       i = interface.Diamond(gladefile = gladefile, suffix = suffix)
+ 
+diff --unified --recursive --text spud.orig/diamond/diamond/attributewidget.py spud.new/diamond/diamond/attributewidget.py
+--- spud.orig/diamond/diamond/attributewidget.py	2019-06-27 15:43:51.174898836 +0100
++++ spud.new/diamond/diamond/attributewidget.py	2019-06-27 17:20:20.814793668 +0100
+@@ -18,8 +18,8 @@
+ import gobject
+ import gtk
+ 
+-import datatype
+-import dialogs
++from . import datatype
++from . import dialogs
+ 
+ class AttributeWidget(gtk.Frame):
+ 
+@@ -91,7 +91,7 @@
+     else:
+       self.set_property("visible", True)
+ 
+-      for key in node.attrs.keys():
++      for key in list(node.attrs.keys()):
+         model = self.treeview.get_model()
+         cell_model = gtk.ListStore(gobject.TYPE_STRING)
+ 
+diff --unified --recursive --text spud.orig/diamond/diamond/choice.py spud.new/diamond/diamond/choice.py
+--- spud.orig/diamond/diamond/choice.py	2019-06-27 15:43:51.174898836 +0100
++++ spud.new/diamond/diamond/choice.py	2019-06-27 17:20:20.884793368 +0100
+@@ -18,13 +18,13 @@
+ import base64
+ import bz2
+ import copy
+-import StringIO
++import io
+ from lxml import etree
+ 
+ 
+ import gobject
+ 
+-import tree
++from . import tree
+ 
+ class Choice(gobject.GObject):
+ 
+@@ -78,7 +78,7 @@
+     debug.deprint("self.name == %s" % self.name, 0)
+     for choice in self.choices:
+       debug.deprint("choice.name == %s" % choice.name, 0)
+-    raise Exception, "No such choice name: %s" % name
++    raise Exception("No such choice name: %s" % name)
+ 
+   def set_active_choice_by_name(self, name):
+     matched = False
+@@ -88,7 +88,7 @@
+         self.index = self.choices.index(t)
+ 
+     if not matched:
+-      raise Exception, "no such name %s found" % name
++      raise Exception("no such name %s found" % name)
+ 
+     self.recompute_validity()
+ 
+diff --unified --recursive --text spud.orig/diamond/diamond/config.py spud.new/diamond/diamond/config.py
+--- spud.orig/diamond/diamond/config.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/config.py	2019-06-27 17:20:20.931459833 +0100
+@@ -18,9 +18,9 @@
+ import os
+ import os.path
+ import sys
+-import ConfigParser
++import configparser
+ 
+-import debug
++from . import debug
+ 
+ dirs = []
+ if sys.platform != "win32" and sys.platform != "win64":
+@@ -30,12 +30,12 @@
+ if "DIAMOND_CONFIG_PATH" in os.environ:
+   dirs += reversed(os.environ["DIAMOND_CONFIG_PATH"].split(":"))
+ 
+-config = ConfigParser.SafeConfigParser()
++config = configparser.SafeConfigParser()
+ config.read([os.path.join(path, "settings") for path in reversed(dirs)]) #reversed to load usr last
+ 
+ try:
+   config.add_section("colour")
+-except ConfigParser.DuplicateSectionError:
++except configparser.DuplicateSectionError:
+   pass
+ 
+ def __set_default(option, value):
+diff --unified --recursive --text spud.orig/diamond/diamond/datatype.py spud.new/diamond/diamond/datatype.py
+--- spud.orig/diamond/diamond/datatype.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/datatype.py	2019-06-27 17:20:20.951459748 +0100
+@@ -15,7 +15,7 @@
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-import plist
++from . import plist
+ 
+ def print_type(datatype, bracket = True):
+   """
+diff --unified --recursive --text spud.orig/diamond/diamond/datawidget.py spud.new/diamond/diamond/datawidget.py
+--- spud.orig/diamond/diamond/datawidget.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/datawidget.py	2019-06-27 17:20:21.054792637 +0100
+@@ -19,10 +19,10 @@
+ import gtk
+ import pango
+ 
+-import dialogs
+-import datatype
+-import mixedtree
+-import plist
++from . import dialogs
++from . import datatype
++from . import mixedtree
++from . import plist
+ 
+ class DataWidget(gtk.VBox):
+ 
+@@ -346,7 +346,7 @@
+       elif value_check != self.node.data:
+         self.node.set_data(value_check)
+         if (isinstance(self.node, mixedtree.MixedTree)
+-           and "shape" in self.node.child.attrs.keys()
++           and "shape" in list(self.node.child.attrs.keys())
+            and self.node.child.attrs["shape"][0] is int
+            and isinstance(self.node.datatype, plist.List)
+            and self.node.datatype.cardinality == "+"):
+diff --unified --recursive --text spud.orig/diamond/diamond/descriptionwidget.py spud.new/diamond/diamond/descriptionwidget.py
+--- spud.orig/diamond/diamond/descriptionwidget.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/descriptionwidget.py	2019-06-27 17:20:21.098125784 +0100
+@@ -17,7 +17,7 @@
+ 
+ import gtk
+ import re
+-import TextBufferMarkup
++from . import TextBufferMarkup
+ import webbrowser
+ 
+ class DescriptionWidget(gtk.Frame):
+diff --unified --recursive --text spud.orig/diamond/diamond/dialogs.py spud.new/diamond/diamond/dialogs.py
+--- spud.orig/diamond/diamond/dialogs.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/dialogs.py	2019-06-27 17:20:21.148125569 +0100
+@@ -21,7 +21,7 @@
+ 
+ import gtk
+ 
+-import pygtkconsole
++from . import pygtkconsole
+ 
+ def prompt(parent, message, type = gtk.MESSAGE_QUESTION, has_cancel = False):
+   """
+@@ -276,8 +276,8 @@
+     return ""
+ 
+   def on_goto_activate(self, widget=None):
+-    print "goto"
++    print("goto")
+ 
+   def on_cancel_activate(self, widget=None):
+-    print "cancel"
++    print("cancel")
+ 
+diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new/diamond/diamond/diffview.py
+--- spud.orig/diamond/diamond/diffview.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/diffview.py	2019-06-27 17:20:21.281458329 +0100
+@@ -18,7 +18,7 @@
+ import os
+ import os.path
+ import sys
+-import cStringIO as StringIO
++import io as StringIO
+ 
+ import gobject
+ import gtk
+@@ -26,12 +26,12 @@
+ 
+ from lxml import etree
+ 
+-import attributewidget
+-import databuttonswidget
+-import datawidget
+-import mixedtree
++from . import attributewidget
++from . import databuttonswidget
++from . import datawidget
++from . import mixedtree
+ 
+-from config import config
++from .config import config
+ import dxdiff.diff as xmldiff
+ 
+ class DiffView(gtk.Window):
+@@ -180,7 +180,7 @@
+   def __set_treestore(self, tree, iter = None):
+ 
+     attrib = {}
+-    for key, value in tree.attrib.iteritems():
++    for key, value in tree.attrib.items():
+       #             (new,   old,   edit)
+       attrib[key] = (value, value, None)
+ 
+@@ -230,7 +230,7 @@
+       edit = "delete"
+ 
+     if edit == "insert" or edit == "delete":
+-      for key, (valuenew, valueold, valueedit) in attribs.iteritems():
++      for key, (valuenew, valueold, valueedit) in attribs.items():
+         attribs[key] = (valuenew, valueold, edit)
+ 
+       child = self.treestore.iter_children(iter)
+@@ -416,7 +416,7 @@
+ 
+     attribstore = gtk.TreeStore(gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)
+ 
+-    for key, (new, old, diff) in attrib.iteritems():
++    for key, (new, old, diff) in attrib.items():
+       attribstore.append(None, [key, new, old, diff])
+ 
+     self.attribview.set_model(attribstore)
+@@ -517,7 +517,7 @@
+ 
+     tree = etree.Element(tag)
+ 
+-    for key, (newvalue, oldvalue, edit) in attrib.iteritems():
++    for key, (newvalue, oldvalue, edit) in attrib.items():
+       tree.attrib[key] = newvalue
+ 
+     child_iter = self.treestore.iter_children(iter)
+diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.new/diamond/diamond/interface.py
+--- spud.orig/diamond/diamond/interface.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/interface.py	2019-06-27 17:20:21.874789113 +0100
+@@ -21,36 +21,36 @@
+ import time
+ import sys
+ import tempfile
+-import cStringIO as StringIO
++import io as StringIO
+ 
+ import pango
+ import gobject
+ import gtk
+ import gtk.glade
+ 
+-import choice
+-import config
+-import datatype
+-import debug
+-import dialogs
+-import mixedtree
+-import plist
++from . import choice
++from . import config
++from . import datatype
++from . import debug
++from . import dialogs
++from . import mixedtree
++from . import plist
+ import plugins
+-import schema
+-import scherror
+-import tree
+-
+-import StringIO
+-import TextBufferMarkup
+-
+-import attributewidget
+-import commentwidget
+-import descriptionwidget
+-import databuttonswidget
+-import datawidget
+-import diffview
+-import sliceview
+-import useview
++from . import schema
++from . import scherror
++from . import tree
++
++import io
++from . import TextBufferMarkup
++
++from . import attributewidget
++from . import commentwidget
++from . import descriptionwidget
++from . import databuttonswidget
++from . import datawidget
++from . import diffview
++from . import sliceview
++from . import useview
+ 
+ from lxml import etree
+ 
+@@ -426,7 +426,7 @@
+     if self.suffix is None:
+       for xmlname in config.schemata:
+         filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+-    elif self.suffix in config.schemata.keys():
++    elif self.suffix in list(config.schemata.keys()):
+       filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+     else:
+       filter_names_and_patterns[self.suffix] = "*." + self.suffix
+@@ -494,7 +494,7 @@
+     if self.suffix is None:
+       for xmlname in config.schemata:
+         filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
+-    elif self.suffix in config.schemata.keys():
++    elif self.suffix in list(config.schemata.keys()):
+       filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
+     else:
+       filter_names_and_patterns[self.suffix] = "*." + self.suffix
+@@ -693,7 +693,7 @@
+       node = self.selected_node    
+ 
+     if node != None and node.active:
+-      ios = StringIO.StringIO()
++      ios = io.StringIO()
+       node.write(ios)
+     
+       clipboard = gtk.clipboard_get()
+@@ -708,7 +708,7 @@
+       return
+ 
+     clipboard = gtk.clipboard_get()
+-    ios = StringIO.StringIO(clipboard.wait_for_text())
++    ios = io.StringIO(clipboard.wait_for_text())
+     
+     if self.selected_iter is not None:    
+       node = self.treestore.get_value(self.selected_iter, 0)
+@@ -1469,12 +1469,12 @@
+     self.plugin_buttonbox.add(button)
+ 
+   def plugin_handler(self, widget, plugin):
+-    f = StringIO.StringIO()
++    f = io.StringIO()
+     self.tree.write(f)
+     xml = f.getvalue()
+     xml = plugin.execute(xml, self.current_xpath)
+     if xml:
+-      ios = StringIO.StringIO(xml)
++      ios = io.StringIO(xml)
+ 
+       try:
+         tree_read = self.s.read(filename)
+@@ -1926,7 +1926,7 @@
+ 
+     try:
+       # get the iter of the next tree that matches
+-      iter = self.search_generator.next()
++      iter = next(self.search_generator)
+       path = self.parent.treestore.get_path(iter)
+       # scroll down to it, expand it, and select it
+       self.parent.treeview.expand_to_path(path)
+diff --unified --recursive --text spud.orig/diamond/diamond/mixedtree.py spud.new/diamond/diamond/mixedtree.py
+--- spud.orig/diamond/diamond/mixedtree.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/mixedtree.py	2019-06-27 17:20:21.921455578 +0100
+@@ -15,7 +15,7 @@
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-import plist
++from . import plist
+ 
+ class MixedTree:
+   def __init__(self, parent, child):
+@@ -32,7 +32,7 @@
+     self.schemaname = parent.schemaname
+ 
+     excluded_attrs = ["shape"]
+-    self.attrs = dict(self.parent.attrs.items() + [x for x in self.child.attrs.items() if x[0] not in excluded_attrs])
++    self.attrs = dict(list(self.parent.attrs.items()) + [x for x in list(self.child.attrs.items()) if x[0] not in excluded_attrs])
+ 
+     self.children = parent.children
+     self.datatype = child.datatype
+@@ -48,7 +48,7 @@
+     elif attr in self.child.attrs:
+       self.child.set_attr(attr, val)
+     else:
+-      raise Exception, "Attribute not present in either parent or child!"
++      raise Exception("Attribute not present in either parent or child!")
+ 
+     return
+ 
+@@ -58,7 +58,7 @@
+     elif attr in self.child.attrs:
+       self.child.get_attr(attr)
+     else:
+-      raise Exception, "Attribute not present in either parent or child!"
++      raise Exception("Attribute not present in either parent or child!")
+ 
+   def set_data(self, data):
+     self.child.set_data(data)
+@@ -117,16 +117,16 @@
+         return False
+ 
+     # The element must have dim1, rank and shape attributes
+-    if "dim1" not in self.child.attrs.keys() \
+-       or "rank" not in self.child.attrs.keys() \
+-       or "shape" not in self.child.attrs.keys():
++    if "dim1" not in list(self.child.attrs.keys()) \
++       or "rank" not in list(self.child.attrs.keys()) \
++       or "shape" not in list(self.child.attrs.keys()):
+       return False
+ 
+     # The dim1 and rank attributes must be of fixed type
+     if self.child.attrs["dim1"][0] != "fixed" or self.child.attrs["rank"][0] != "fixed":
+       return False
+ 
+-    if "dim2" in self.child.attrs.keys():
++    if "dim2" in list(self.child.attrs.keys()):
+       # If a dim2 attribute is specified, it must be of fixed type and the rank must be 2
+       # Also, the shape attribute must be a list of integers with cardinality equal to the rank
+       if self.child.attrs["dim2"][0] != "fixed" \
+@@ -150,7 +150,7 @@
+         return False
+ 
+       dim1, dim2 = self.tensor_shape(geometry_dim_tree)
+-      if "dim2" in self.child.attrs.keys():
++      if "dim2" in list(self.child.attrs.keys()):
+         if self.child.attrs["shape"][1] != str(dim1) + " " + str(dim2):
+           return False
+       elif self.child.attrs["shape"][1] != str(dim1):
+@@ -168,9 +168,9 @@
+ 
+     dim1 = 1
+     dim2 = 1
+-    if "dim1" in self.child.attrs.keys():
++    if "dim1" in list(self.child.attrs.keys()):
+       dim1 = int(eval(self.child.attrs["dim1"][1], {"dim":dimension}))
+-      if "dim2" in self.child.attrs.keys():
++      if "dim2" in list(self.child.attrs.keys()):
+         dim2 = int(eval(self.child.attrs["dim2"][1], {"dim":dimension}))
+ 
+     return (dim1, dim2)
+@@ -182,7 +182,7 @@
+ 
+     dim1, dim2 = self.tensor_shape(geometry)
+ 
+-    return dim1 == dim2 and "symmetric" in self.child.attrs.keys() and self.child.attrs["symmetric"][1] == "true"
++    return dim1 == dim2 and "symmetric" in list(self.child.attrs.keys()) and self.child.attrs["symmetric"][1] == "true"
+ 
+   def is_code(self):
+     """
+@@ -199,7 +199,7 @@
+     if self.datatype is not str:
+       return False
+ 
+-    if "type" in self.child.attrs.keys():
++    if "type" in list(self.child.attrs.keys()):
+       return self.child.attrs["type"][1] == "code"
+     
+     return False
+diff --unified --recursive --text spud.orig/diamond/diamond/pygtkconsole.py spud.new/diamond/diamond/pygtkconsole.py
+--- spud.orig/diamond/diamond/pygtkconsole.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/pygtkconsole.py	2019-06-27 17:20:22.001455234 +0100
+@@ -15,10 +15,10 @@
+ import sys
+ import pango
+ 
+-import __builtin__
++import builtins
+ import __main__
+ 
+-import debug
++from . import debug
+ 
+ banner = """GTK Interactive Python Console
+ %s
+@@ -57,7 +57,7 @@
+     import keyword
+     matches = []
+     n = len(text)
+-    for list in [keyword.kwlist,__builtin__.__dict__.keys(),__main__.__dict__.keys(), self.locals.keys()]:
++    for list in [keyword.kwlist,list(builtins.__dict__.keys()),list(__main__.__dict__.keys()), list(self.locals.keys())]:
+       for word in list:
+         if word[:n] == text and word != "__builtins__":
+           matches.append(word)
+diff --unified --recursive --text spud.orig/diamond/diamond/schema.py spud.new/diamond/diamond/schema.py
+--- spud.orig/diamond/diamond/schema.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/schema.py	2019-06-27 17:20:22.194787737 +0100
+@@ -20,15 +20,15 @@
+ import copy
+ import sys
+ 
+-import cStringIO
++import io
+ 
+ from lxml import etree
+ 
+-import debug
+-import choice
+-import plist
++from . import debug
++from . import choice
++from . import plist
+ import preprocess
+-import tree
++from . import tree
+ 
+ def memoise(f):
+     cache = {}
+@@ -45,7 +45,7 @@
+ class Schema(object):
+   def __init__(self, schemafile):
+     p = etree.XMLParser(remove_comments=True)
+-    self.tree = etree.parse(cStringIO.StringIO(preprocess.preprocess(schemafile)), p)
++    self.tree = etree.parse(io.StringIO(preprocess.preprocess(schemafile)), p)
+ 
+     self.callbacks = {'element': self.cb_element,
+                       'documentation': self.cb_documentation,
+@@ -85,7 +85,7 @@
+     children = []
+     for child1 in element.iterchildren(tag=etree.Element):
+       if self.tag(child1) == "ref":
+-        if not "name" in child1.keys():
++        if not "name" in list(child1.keys()):
+           debug.deprint("Warning: Encountered reference with no name")
+           continue
+ 
+@@ -188,7 +188,7 @@
+     if "cardinality" in facts:
+       newfacts["cardinality"] = facts["cardinality"]
+ 
+-    if "name" in element.keys():
++    if "name" in list(element.keys()):
+       newfacts["name"] = element.get("name")
+     else:
+       debug.deprint("Warning: Encountered element with no name")
+@@ -227,7 +227,7 @@
+               l_data.append(x)
+ 
+           if len(l_data) > 1:
+-            if "name" in element.keys():
++            if "name" in list(element.keys()):
+               debug.deprint("Warning: Element %s has multiple datatypes - using first one" % newfacts["name"])
+             else:
+               debug.deprint("Warning: Unnamed element has multiple datatypes - using first one")
+@@ -255,7 +255,7 @@
+     facts["datatype"] = tuple(l)
+ 
+   def cb_attribute(self, element, facts):
+-    if not "name" in element.keys():
++    if not "name" in list(element.keys()):
+       debug.deprint("Warning: Encountered attribute with no name")
+       return
+ 
+@@ -549,7 +549,7 @@
+     # merge the two.
+     
+     datatree.xmlnode = xmlnode
+-    xmlkeys = xmlnode.keys()
++    xmlkeys = list(xmlnode.keys())
+ 
+     if datatree.__class__ is tree.Tree:
+       to_set = datatree
+@@ -591,11 +591,11 @@
+ 
+     # catch any lost XML attributes
+     for key in xmlkeys:
+-      if key not in to_set.attrs.keys():
++      if key not in list(to_set.attrs.keys()):
+         self.lost_attrs += [to_set.name + '/' + key]
+ 
+     # attribute values.
+-    for key in to_set.attrs.keys():
++    for key in list(to_set.attrs.keys()):
+       if key in xmlkeys:
+         try:
+           to_set.set_attr(key, xmlnode.get(key))
+@@ -813,7 +813,7 @@
+   # Loop over lost nodes, and store their XML so the user can be notified later.
+   def check_unused_nodes(self, used): 
+     def xml2string(xml):
+-      buf = cStringIO.StringIO()
++      buf = io.StringIO()
+       buf.write(etree.tostring(xml, pretty_print = True))
+       s = buf.getvalue()
+       buf.close()
+diff --unified --recursive --text spud.orig/diamond/diamond/schemausage.py spud.new/diamond/diamond/schemausage.py
+--- spud.orig/diamond/diamond/schemausage.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/schemausage.py	2019-06-27 17:20:22.214787651 +0100
+@@ -15,10 +15,10 @@
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-from cStringIO import StringIO
++from io import StringIO
+ from lxml import etree
+ 
+-from schema import Schema
++from .schema import Schema
+ 
+ RELAXNGNS = "http://relaxng.org/ns/structure/1.0"
+ RELAXNG = "{" + RELAXNGNS + "}"
+@@ -99,12 +99,12 @@
+   """
+   Returns a name for this node.
+   """
+-  tagname = node.get("name") if "name" in node.keys() else strip(node.tag)
++  tagname = node.get("name") if "name" in list(node.keys()) else strip(node.tag)
+   name = None
+ 
+   for child in node:
+     if child.tag == RELAXNG + "attribute":
+-      if "name" in child.keys() and child.get("name") == "name":
++      if "name" in list(child.keys()) and child.get("name") == "name":
+         for grandchild in child:
+           if grandchild.tag == RELAXNG + "value":
+             name = " (" + grandchild.text + ")"
+diff --unified --recursive --text spud.orig/diamond/diamond/scherror.py spud.new/diamond/diamond/scherror.py
+--- spud.orig/diamond/diamond/scherror.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/scherror.py	2019-06-27 17:20:22.264787436 +0100
+@@ -15,7 +15,7 @@
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-import debug
++from . import debug
+ import pango
+ import gobject
+ import gtk
+@@ -25,8 +25,8 @@
+ import os
+ import re
+ 
+-import dialogs
+-import interface
++from . import dialogs
++from . import interface
+ 
+ class DiamondSchemaError:
+   def __init__(self, parent, gladefile, schema_file, schematron_file):
+@@ -137,7 +137,7 @@
+         message = " ".join(tokens[7:])
+ 
+         line = sub_tokens[1]
+-        xpath = self.add_to_xpath(output_lines, "", long(line)-1)
++        xpath = self.add_to_xpath(output_lines, "", int(line)-1)
+ 
+         self.model.append([ xpath, message ])
+ 
+diff --unified --recursive --text spud.orig/diamond/diamond/sliceview.py spud.new/diamond/diamond/sliceview.py
+--- spud.orig/diamond/diamond/sliceview.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/sliceview.py	2019-06-27 17:20:22.288120669 +0100
+@@ -18,10 +18,10 @@
+ import gobject
+ import gtk
+ 
+-import attributewidget
+-import databuttonswidget
+-import datawidget
+-import mixedtree
++from . import attributewidget
++from . import databuttonswidget
++from . import datawidget
++from . import mixedtree
+ 
+ class SliceView(gtk.Window):
+   
+diff --unified --recursive --text spud.orig/diamond/diamond/TextBufferMarkup.py spud.new/diamond/diamond/TextBufferMarkup.py
+--- spud.orig/diamond/diamond/TextBufferMarkup.py	2019-06-27 15:43:51.174898836 +0100
++++ spud.new/diamond/diamond/TextBufferMarkup.py	2019-06-27 17:20:20.748127288 +0100
+@@ -19,7 +19,7 @@
+ 
+ import pango,gtk, xml.sax.saxutils
+ 
+-import debug
++from . import debug
+ 
+ class PangoBuffer (gtk.TextBuffer):
+     desc_to_attr_table = {
+@@ -76,14 +76,14 @@
+     def set_text (self, txt):
+         gtk.TextBuffer.set_text(self,"")
+         try:
+-            self.parsed,self.txt,self.separator = pango.parse_markup(txt,u'\x00')
++            self.parsed,self.txt,self.separator = pango.parse_markup(txt,'\x00')
+         except:
+             debug.deprint('Escaping text, we seem to have a problem here!', 2)
+             txt=xml.sax.saxutils.escape(txt)
+-            self.parsed,self.txt,self.separator = pango.parse_markup(txt,u'\x00')
++            self.parsed,self.txt,self.separator = pango.parse_markup(txt,'\x00')
+         self.attrIter = self.parsed.get_iterator()
+         self.add_iter_to_buffer()
+-        while self.attrIter.next():
++        while next(self.attrIter):
+             self.add_iter_to_buffer()
+ 
+     def add_iter_to_buffer (self):
+@@ -102,15 +102,15 @@
+             if fontattrs:
+                 attrs.extend(fontattrs)
+             if fontdesc and fontdesc!='Normal':
+-                if not self.tags.has_key(font.to_string()):
++                if font.to_string() not in self.tags:
+                     tag=self.create_tag()
+                     tag.set_property('font-desc',font)
+-                    if not self.tagdict.has_key(tag): self.tagdict[tag]={}
++                    if tag not in self.tagdict: self.tagdict[tag]={}
+                     self.tagdict[tag]['font_desc']=font.to_string()
+                     self.tags[font.to_string()]=tag
+                 tags.append(self.tags[font.to_string()])
+         if lang:
+-            if not self.tags.has_key(lang):
++            if lang not in self.tags:
+                 tag = self.create_tag()
+                 tag.set_property('language',lang)
+                 self.tags[lang]=tag
+@@ -120,7 +120,7 @@
+                 if a.type == pango.ATTR_FOREGROUND:
+                     gdkcolor = self.pango_color_to_gdk(a.color)
+                     key = 'foreground%s'%self.color_to_hex(gdkcolor)
+-                    if not self.tags.has_key(key):
++                    if key not in self.tags:
+                         self.tags[key]=self.create_tag()
+                         self.tags[key].set_property('foreground-gdk',gdkcolor)
+                         self.tagdict[self.tags[key]]={}
+@@ -129,26 +129,26 @@
+                 if a.type == pango.ATTR_BACKGROUND:
+                     gdkcolor = self.pango_color_to_gdk(a.color)
+                     key = 'background%s'%self.color_to_hex(gdkcolor)
+-                    if not self.tags.has_key(key):
++                    if key not in self.tags:
+                         self.tags[key]=self.create_tag()
+                         self.tags[key].set_property('background-gdk',gdkcolor)
+                         self.tagdict[self.tags[key]]={}
+                         self.tagdict[self.tags[key]]['background']="#%s"%self.color_to_hex(gdkcolor)
+                     tags.append(self.tags[key])
+-                if self.pango_translation_properties.has_key(a.type):
++                if a.type in self.pango_translation_properties:
+                     prop=self.pango_translation_properties[a.type]
+                     #print 'setting property %s of %s (type: %s)'%(prop,a,a.type)
+                     val=getattr(a,'value')
+                     #tag.set_property(prop,val)
+                     mval = val
+-                    if self.attval_to_markup.has_key(prop):
++                    if prop in self.attval_to_markup:
+                         #print 'converting ',prop,' in ',val
+-                        if self.attval_to_markup[prop].has_key(val):
++                        if val in self.attval_to_markup[prop]:
+                             mval = self.attval_to_markup[prop][val]
+                         else:
+                             debug.deprint("hmmm, didn't know what to do with value %s"%val, 2)
+                     key="%s%s"%(prop,val)
+-                    if not self.tags.has_key(key):
++                    if key not in self.tags:
+                         self.tags[key]=self.create_tag()
+                         self.tags[key].set_property(prop,val)
+                         self.tagdict[self.tags[key]]={}
+@@ -161,7 +161,7 @@
+         for pos in range(self.get_char_count()):
+             iter=self.get_iter_at_offset(pos)
+             for tag in iter.get_tags():
+-                if tagdict.has_key(tag):
++                if tag in tagdict:
+                     if tagdict[tag][-1][1] == pos - 1:
+                         tagdict[tag][-1] = (tagdict[tag][-1][0],pos)
+                     else:
+@@ -174,22 +174,22 @@
+         tagdict=self.get_tags()
+         if not start: start=self.get_start_iter()
+         if not end: end=self.get_end_iter()
+-        txt = unicode(gtk.TextBuffer.get_text(self,start,end))
++        txt = str(gtk.TextBuffer.get_text(self,start,end))
+         cuts = {}
+-        for k,v in tagdict.items():
++        for k,v in list(tagdict.items()):
+             stag,etag = self.tag_to_markup(k)
+             for st,e in v:
+-                if cuts.has_key(st): cuts[st].append(stag) #add start tags second
++                if st in cuts: cuts[st].append(stag) #add start tags second
+                 else: cuts[st]=[stag]
+-                if cuts.has_key(e+1): cuts[e+1]=[etag]+cuts[e+1] #add end tags first
++                if e+1 in cuts: cuts[e+1]=[etag]+cuts[e+1] #add end tags first
+                 else: cuts[e+1]=[etag]
+         last_pos = 0
+         outbuff = ""
+-        cut_indices = cuts.keys()
++        cut_indices = list(cuts.keys())
+         cut_indices.sort()
+         soffset = start.get_offset()
+         eoffset = end.get_offset()
+-        cut_indices = filter(lambda i: eoffset >= i >= soffset, cut_indices)
++        cut_indices = [i for i in cut_indices if eoffset >= i >= soffset]
+         for c in cut_indices:
+             if not last_pos==c:
+                 outbuff += xml.sax.saxutils.escape(txt[last_pos:c])
+@@ -201,7 +201,7 @@
+ 
+     def tag_to_markup (self, tag):
+         stag = "<span"
+-        for k,v in self.tagdict[tag].items():
++        for k,v in list(self.tagdict[tag].items()):
+             stag += ' %s="%s"'%(k,v)
+         stag += ">"
+         return stag,"</span>"
+@@ -210,7 +210,7 @@
+         nicks = font.get_set_fields().value_nicks
+         attrs = []
+         for n in nicks:
+-            if self.desc_to_attr_table.has_key(n):
++            if n in self.desc_to_attr_table:
+                 Attr,norm = self.desc_to_attr_table[n]
+                 # create an attribute with our current value
+                 attrs.append(Attr(getattr(font,'get_%s'%n)()))
+@@ -272,7 +272,7 @@
+     def remove_all_tags (self):
+         selection = self.get_selection()
+         if selection:
+-            for t in self.tags.values():
++            for t in list(self.tags.values()):
+                 self.remove_tag(t,*selection)
+ 
+ class InteractivePangoBuffer (PangoBuffer):
+@@ -300,7 +300,7 @@
+     def setup_widget_from_pango (self, widg, markupstring):
+         """setup widget from a pango markup string"""
+         #font = pango.FontDescription(fontstring)
+-        a,t,s = pango.parse_markup(markupstring,u'\x00')
++        a,t,s = pango.parse_markup(markupstring,'\x00')
+         ai=a.get_iterator()
+         font,lang,attrs=ai.get_font()
+         return self.setup_widget(widg,font,attrs)
+@@ -323,7 +323,7 @@
+         if hasattr(self,'_in_mark_set') and self._in_mark_set: return
+         self._in_mark_set = True
+         if mark.get_name()=='insert':
+-            for tags,widg in self.tag_widgets.items():
++            for tags,widg in list(self.tag_widgets.items()):
+                 active = True
+                 for t in tags:
+                     if not iter.has_tag(t):
+@@ -346,7 +346,7 @@
+         if old_itr!=insert_itr:
+             # Use the state of our widgets to determine what
+             # properties to apply...
+-            for tags,w in self.tag_widgets.items():
++            for tags,w in list(self.tag_widgets.items()):
+                 if w.get_active():
+                     #print 'apply tags...',tags
+                     for t in tags: self.apply_tag(t,old_itr,insert_itr)
+diff --unified --recursive --text spud.orig/diamond/diamond/tree.py spud.new/diamond/diamond/tree.py
+--- spud.orig/diamond/diamond/tree.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/tree.py	2019-06-27 17:20:22.504786405 +0100
+@@ -18,8 +18,8 @@
+ import base64
+ import bz2
+ import copy
+-import cPickle as pickle
+-import cStringIO as StringIO
++import pickle as pickle
++import io as StringIO
+ import re
+ import zlib
+ from lxml import etree
+@@ -27,9 +27,9 @@
+ 
+ import gobject
+ 
+-import debug
+-import choice
+-import mixedtree
++from . import debug
++from . import choice
++from . import mixedtree
+ 
+ class Tree(gobject.GObject):
+   """This class maps pretty much 1-to-1 with an xml tree.
+@@ -91,7 +91,7 @@
+ 
+     # The attributes of the tree
+     self.attrs = {}
+-    for key in attrs.keys():
++    for key in list(attrs.keys()):
+       if isinstance(attrs[key][0], tuple) and len(attrs[key][0]) == 1:
+         self.attrs[key] = ("fixed", attrs[key][0][0])
+       else:
+@@ -104,7 +104,7 @@
+     (datatype, curval) = self.attrs[attr]
+     (invalid, newdata) = self.valid_data(datatype, val)
+     if invalid:
+-      raise Exception, "invalid data: (%s, %s)" % (datatype, val)
++      raise Exception("invalid data: (%s, %s)" % (datatype, val))
+     self.attrs[attr] = (datatype, newdata)
+     self.recompute_validity()
+     self.emit("on-set-attr", attr, val)
+@@ -121,17 +121,17 @@
+   def set_data(self, data):
+     (invalid, data) = self.valid_data(self.datatype, data)
+     if invalid:
+-      raise Exception, "invalid data: (%s, %s)" % (str(self.datatype), data)
++      raise Exception("invalid data: (%s, %s)" % (str(self.datatype), data))
+     self.data = data
+     self.recompute_validity()
+     self.emit("on-set-data", data)
+ 
+   def valid_data(self, datatype, data):
+     if datatype is None:
+-      raise Exception, "datatype is None!"
++      raise Exception("datatype is None!")
+ 
+     elif datatype == "fixed":
+-      raise Exception, "datatype is fixed!"
++      raise Exception("datatype is fixed!")
+ 
+     datatypes_to_check = []
+ 
+@@ -202,7 +202,7 @@
+ 
+     # if any attributes are unset,
+     # we are invalid.
+-    for attr in self.attrs.keys():
++    for attr in list(self.attrs.keys()):
+       (datatype, val) = self.attrs[attr]
+       if not datatype is None and val is None:
+         new_valid = False
+@@ -272,14 +272,14 @@
+       val = self.attrs[key]
+       output_val = val[1]
+       if output_val is not None:
+-        sub_tree.set(unicode(key), unicode(output_val))
++        sub_tree.set(str(key), str(output_val))
+   
+     for child in self.children:
+       if child.active is True:
+         child.write_core(sub_tree)
+         
+     if self.data is not None:
+-      sub_tree.text = unicode(self.data)
++      sub_tree.text = str(self.data)
+       
+     if parent is not None:
+       parent.append(sub_tree)
+@@ -317,11 +317,11 @@
+       self.active = False
+ 
+   def count_children_by_schemaname(self, schemaname):
+-    count = len(filter(lambda x: x.schemaname == schemaname, self.children))
++    count = len([x for x in self.children if x.schemaname == schemaname])
+     return count
+ 
+   def get_children_by_schemaname(self, schemaname):
+-    return filter(lambda x: x.schemaname == schemaname, self.children)
++    return [x for x in self.children if x.schemaname == schemaname]
+ 
+   def delete_child_by_ref(self, ref):
+     self.children.remove(ref)
+@@ -399,7 +399,7 @@
+     if name == self.name:
+       return self
+     else:
+-      raise Exception, "ban the bomb"
++      raise Exception("ban the bomb")
+ 
+   def choices(self):
+     return [self]
+diff --unified --recursive --text spud.orig/diamond/diamond/triangle_reader.py spud.new/diamond/diamond/triangle_reader.py
+--- spud.orig/diamond/diamond/triangle_reader.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/triangle_reader.py	2019-06-27 17:20:22.558119509 +0100
+@@ -105,7 +105,7 @@
+         # Load all data.
+         all_data = self._get_data(file_name)
+         # Grab values from the first line of data file.
+-        points, dimensions, attributes, boundary_marker = map(int, all_data[0:4])
++        points, dimensions, attributes, boundary_marker = list(map(int, all_data[0:4]))
+         # Reshape remainder of array.
+         data_array = all_data[4:].reshape(points, 1+dimensions+attributes+boundary_marker)
+ 
+@@ -114,7 +114,7 @@
+         points_array = array(data_array[:, 1:(1+dimensions)], 'double')
+         if (dimensions == 2):
+             # Add a 0 to each point if it is 2D.
+-            points_array = array(map (lambda a: append(a, 0), points_array))
++            points_array = array([append(a, 0) for a in points_array])
+         self._grid.points = points_array
+ 
+         for i in range(attributes):
+@@ -145,7 +145,7 @@
+         # Load all data.
+         all_data = self._get_data(file_name)
+         # Grab values from the first line of data file.
+-        faces_edges, boundary_marker = map(int, all_data[0:2])
++        faces_edges, boundary_marker = list(map(int, all_data[0:2]))
+         # Reshape remainder of array.
+         data_array = all_data[2:].reshape(faces_edges, npoints+1+boundary_marker)
+ 
+@@ -167,7 +167,7 @@
+         # Load all data.
+         all_data = self._get_data(file_name)
+         # Grab values from the first line of data file.
+-        tet_tri, nodes_per_tet_tri, attributes =  map(int, all_data[0:3])
++        tet_tri, nodes_per_tet_tri, attributes =  list(map(int, all_data[0:3]))
+         # Reshape remainder of array.
+         data_array = all_data[3:].reshape(tet_tri, 1+nodes_per_tet_tri+attributes)
+ 
+@@ -211,7 +211,7 @@
+         attribute_array_name = 'Attribute %i' %i
+         if (type == 'cell'): # .ele file attributes are of type Int
+             tvtk_attribute_array = tvtk.IntArray(name=attribute_array_name)
+-            attribute_array = map(int, attribute_array)
++            attribute_array = list(map(int, attribute_array))
+         else:                # .node file attributes are of type Float
+             tvtk_attribute_array = tvtk.FloatArray(name=attribute_array_name)
+         tvtk_attribute_array.from_array(attribute_array)
+diff --unified --recursive --text spud.orig/diamond/diamond/useview.py spud.new/diamond/diamond/useview.py
+--- spud.orig/diamond/diamond/useview.py	2019-06-27 15:43:51.181565474 +0100
++++ spud.new/diamond/diamond/useview.py	2019-06-27 17:20:22.598119336 +0100
+@@ -20,7 +20,7 @@
+ import os
+ import threading
+ 
+-import schemausage
++from . import schemausage
+ 
+ RELAXNGNS = "http://relaxng.org/ns/structure/1.0"
+ RELAXNG = "{" + RELAXNGNS + "}"
+diff --unified --recursive --text spud.orig/diamond/plugins/test.py spud.new/diamond/plugins/test.py
+--- spud.orig/diamond/plugins/test.py	2019-06-27 15:43:51.184898793 +0100
++++ spud.new/diamond/plugins/test.py	2019-06-27 17:20:22.601452655 +0100
+@@ -8,9 +8,9 @@
+ 
+ @cb_decorator
+ def handle_click(xml, xpath):
+-  print "xpath == ", xpath
+-  print "xml[0:80] == ", xml[0:80]
+-  print "Hello, world!"
++  print("xpath == ", xpath)
++  print("xml[0:80] == ", xml[0:80])
++  print("Hello, world!")
+ 
+ 
+ register_plugin(plugin_applies, "Test", handle_click)
 diff --unified --recursive --text spud.orig/diamond/setup.py.in spud.new/diamond/setup.py.in
 --- spud.orig/diamond/setup.py.in	2019-06-27 15:43:51.184898793 +0100
 +++ spud.new/diamond/setup.py.in	2019-06-27 15:45:42.721088798 +0100
@@ -58,37 +1123,142 @@ diff --unified --recursive --text spud.orig/diamond/setup.py.in spud.new/diamond
  
  # We now have all the information we need; run setup.
  setup(
-diff --unified --recursive --text spud.orig/Makefile.in spud.new/Makefile.in
---- spud.orig/Makefile.in	2019-06-27 15:43:51.164898878 +0100
-+++ spud.new/Makefile.in	2019-06-27 15:45:17.011198671 +0100
-@@ -59,7 +59,7 @@
- 	(if test -f .libs/libspud.so; then cp .libs/libspud.so ./libspud.so.0; ln -s libspud.so.0 libspud.so; fi) || true
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/bimap.py spud.new/dxdiff/dxdiff/bimap.py
+--- spud.orig/dxdiff/dxdiff/bimap.py	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/bimap.py	2019-06-27 17:36:20.487370320 +0100
+@@ -32,7 +32,7 @@
+   def __iter__(self):
+     # we iter over the left dict so that the left item is
+     # on the left side of the tuple returned
+-    for item in self.left.iteritems():
++    for item in self.left.items():
+       yield item
+   
+   def __contains__(self, item):
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/diff.py spud.new/dxdiff/dxdiff/diff.py
+--- spud.orig/dxdiff/dxdiff/diff.py	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/diff.py	2019-06-27 17:36:20.490703639 +0100
+@@ -15,7 +15,7 @@
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
  
- build-diamond:
--	cd diamond; python setup.py build; cd ..
-+	cd diamond; python2 setup.py build; cd ..
+-import fmes
++from . import fmes
  
- test: unittest
+ def diff(xmlold, xmlnew):
+   """
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/dxdiff spud.new/dxdiff/dxdiff/dxdiff
+--- spud.orig/dxdiff/dxdiff/dxdiff	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/dxdiff	2019-06-27 17:36:20.737369261 +0100
+@@ -19,14 +19,14 @@
+ import sys
+ import os
+ from lxml import etree
+-from diff import diff
++from .diff import diff
+  
+ def __display_help():
+   """
+   Prints usage information to standard output.
+   """
  
-@@ -92,18 +92,18 @@
- 	@INSTALL@ -m644 schema/spud_base.rng $(DESTDIR)@prefix@/share/spud
+-  print "\n".join(["Usage: dxdiff [OPTIONS] ... [FILE1] [FILE2]",
++  print("\n".join(["Usage: dxdiff [OPTIONS] ... [FILE1] [FILE2]",
+                    "", 
+                    "An XML aware diff tool. [FILE1] and [FILE2] are the XML files to be compared.",
+                    "[FILE1] should be the old file.",
+@@ -34,7 +34,7 @@
+                    "Options:", 
+                    ""
+                    "-h               Display this message", 
+-                   ""])
++                   ""]))
  
- install-diamond:
--	cd diamond;	python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
-+	cd diamond;	python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
+ def __main():
+   """
+@@ -65,13 +65,13 @@
+   try:
+     os.stat(file1)
+   except OSError:
+-    print "Could not find " + file1 + "!"
++    print("Could not find " + file1 + "!")
+     sys.exit(1)
  
- install-pyspud:
- ifeq ($(origin BUILDING_DEBIAN),undefined)
--	cd python; python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
-+	cd python; python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
- else
- 	cd python; for python in $(shell pyversions -r); do $$python setup.py install --prefix=$(DESTDIR)@prefix@ --install-layout=deb; done; cd ..
- endif
+   try:
+     os.stat(file2)
+   except OSError:
+-    print "Could not find " + file2 + "!"
++    print("Could not find " + file2 + "!")
+     sys.exit(1)
  
- install-dxdiff:
- ifeq ($(origin BUILDING_DEBIAN),undefined)
--	cd dxdiff; python setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
-+	cd dxdiff; python2 setup.py install --prefix=$(DESTDIR)@prefix@; cd ..
- else
- 	cd dxdiff; for python in $(shell pyversions -r); do $$python setup.py install --prefix=$(DESTDIR)@prefix@ --install-layout=deb; done; cd ..
- endif
+   xmlold = etree.parse(file1)
+@@ -79,7 +79,7 @@
+ 
+   editscript = diff(xmlold, xmlnew)
+   if ("s", "") not in opts:
+-    print editscript
++    print(editscript)
+   if output_file is not None:
+     editscript.write(output_file)
+ 
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/fmes.py spud.new/dxdiff/dxdiff/fmes.py
+--- spud.orig/dxdiff/dxdiff/fmes.py	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/fmes.py	2019-06-27 17:36:20.604036492 +0100
+@@ -20,11 +20,11 @@
+ 
+ from lxml import etree
+ from collections import deque
+-from bimap import Bimap
+-from editscript import EditScript
++from .bimap import Bimap
++from .editscript import EditScript
+ 
+-import lcs
+-import utils
++from . import lcs
++from . import utils
+ 
+ class Dom:
+   def __init__(self, tag, value, parent, attribute = False):
+@@ -183,7 +183,7 @@
+     text = Dom(tree.tag, text, node)
+     node.children.append(text)
+ 
+-  for key, value in tree.items():
++  for key, value in list(tree.items()):
+     attr = Dom(key, value, node, True)
+     node.children.append(attr)
+ 
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/lcs.py spud.new/dxdiff/dxdiff/lcs.py
+--- spud.orig/dxdiff/dxdiff/lcs.py	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/lcs.py	2019-06-27 17:36:20.664036239 +0100
+@@ -18,7 +18,7 @@
+ Find the LCS (Longest Common Subsequence). Uses [http://www.xmailserver.org/diff2.pdf]
+ """
+ 
+-from utils import irange
++from .utils import irange
+ 
+ def __path(V, D, k):
+   if D == 0:
+diff --unified --recursive --text spud.orig/dxdiff/dxdiff/utils.py spud.new/dxdiff/dxdiff/utils.py
+--- spud.orig/dxdiff/dxdiff/utils.py	2019-06-27 15:43:51.188232112 +0100
++++ spud.new/dxdiff/dxdiff/utils.py	2019-06-27 17:36:20.720702665 +0100
+@@ -77,7 +77,7 @@
+     raise ValueError("irange() step argument must not be zero")
+ 
+   stop = stop + 1 if step > 0 else stop - 1
+-  return range(start, stop, step)
++  return list(range(start, stop, step))
+ 
+ ##################
+ ### Unit Tests ###
+@@ -116,7 +116,7 @@
+     result = []
+     for arg in args:
+       result.append(str(args))
+-    for k, v in kargs.items():
++    for k, v in list(kargs.items()):
+       result.append(str(k) + ": " + str(v))
+     return ' '.join(result)
+   
