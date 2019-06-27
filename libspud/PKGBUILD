@@ -18,7 +18,7 @@ md5sums=(
 
 prepare() {
     cd "_$pkgname"
-    patch --strip=1 --input="$pkgname.patch"
+    patch --strip=1 --input="$srcdir/$pkgname.patch"
 }
 
 pkgver() {
