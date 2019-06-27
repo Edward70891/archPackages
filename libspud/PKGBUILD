@@ -1,0 +1,27 @@
+pkgname='libspud-bzr'
+pkgver=r539
+pkgrel=1
+pkgdesc="A generic system for defining, writing and processing options files for scientific computer models"
+arch=("x86_64")
+url="http://www.imperial.ac.uk/earth-science/research/research-groups/amcg/software/spud/"
+license=('LGPLv2.1')
+depends=("python2" "pygtk" "python2-lxml" "trang" "libxml2")
+makedepends=("make" "bzr" "gcc")
+source=("_$pkgname::bzr+https://code.launchpad.net/~spud/spud/trunk")
+md5sums=('SKIP')
+
+pkgver() {
+    cd "_$pkgname"
+    printf "r%s" "$(bzr revno)"
+}
+
+build() {
+	cd "_$pkgname"
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "_$pkgname"
+	make DESTDIR="$pkgdir/" install
+}
