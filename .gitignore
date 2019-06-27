@@ -1,8 +1,6 @@
-*/src/*
-*/pkg/*
-*.tar.bz
-*.tar.xz
-*.tar.gz
-*.rar
-*.deb
-tags
+**/*
+**/PKGBUILD
+libspud-bzr/libspud-bzr.patch
+libspud-git/libspud-git.patch
+README.md
+LICENSE
