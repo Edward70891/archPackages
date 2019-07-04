@@ -16,7 +16,7 @@ source=(
 noextract=("_$pkgname" "$pkgname.patch")
 
 md5sums=('SKIP'
-         'f39e59a4eb76a274cf8f7dbb5a81b1f8')
+         '15b03729fe1009bbc9e6845d9d3dabd0')
 
 prepare() {
     cd "$srcdir/_$pkgname"

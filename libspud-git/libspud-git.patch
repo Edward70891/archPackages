@@ -1,13 +1,23 @@
 diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond/bin/diamond
 --- spud.orig/diamond/bin/diamond	2019-06-27 15:43:51.174898836 +0100
-+++ spud.new/diamond/bin/diamond	2019-06-27 17:20:47.224680142 +0100
++++ spud.new/diamond/bin/diamond	2019-06-27 17:53:34.198210393 +0100
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/env python2
  
  #    This file is part of Diamond.
  #
-@@ -177,12 +177,12 @@
+@@ -14,6 +14,9 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import getopt
+ import os
+@@ -177,12 +180,12 @@
  
      # if there is only one schema, use that
      elif len(config.schemata) == 1:
@@ -22,7 +32,7 @@ diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond
        choice = dialogs.radio_dialog("Choose a schema", "Choose a schema to use:", choices, logofile[0])
        suffix = choice.split(":")[0]
        schemata = config.schemata[suffix]
-@@ -262,7 +262,7 @@
+@@ -262,7 +265,7 @@
      unused = schemausage.find_unusedset(schema.Schema(input_schemafile), paths)
  
      for xpath in unused:
@@ -31,7 +41,7 @@ diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond
  
      if unused:
        return 1
-@@ -277,7 +277,7 @@
+@@ -277,7 +280,7 @@
  
      try:
        i = interface.Diamond(gladefile = gladefile, logofile = logofile, suffix = suffix)
@@ -42,8 +52,15 @@ diff --unified --recursive --text spud.orig/diamond/bin/diamond spud.new/diamond
  
 diff --unified --recursive --text spud.orig/diamond/diamond/attributewidget.py spud.new/diamond/diamond/attributewidget.py
 --- spud.orig/diamond/diamond/attributewidget.py	2019-06-27 15:43:51.174898836 +0100
-+++ spud.new/diamond/diamond/attributewidget.py	2019-06-27 17:20:20.814793668 +0100
-@@ -18,8 +18,8 @@
++++ spud.new/diamond/diamond/attributewidget.py	2019-06-27 17:50:18.841426475 +0100
+@@ -14,12 +14,15 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
  import gobject
  import gtk
  
@@ -54,7 +71,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/attributewidget.py s
  
  class AttributeWidget(gtk.Frame):
  
-@@ -91,7 +91,7 @@
+@@ -91,7 +94,7 @@
      else:
        self.set_property("visible", True)
  
@@ -100,6 +117,19 @@ diff --unified --recursive --text spud.orig/diamond/diamond/choice.py spud.new/d
  
      self.recompute_validity()
  
+diff --unified --recursive --text spud.orig/diamond/diamond/commentwidget.py spud.new/diamond/diamond/commentwidget.py
+--- spud.orig/diamond/diamond/commentwidget.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/commentwidget.py	2019-06-27 17:50:07.394808257 +0100
+@@ -14,6 +14,9 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import gobject
+ import gtk
 diff --unified --recursive --text spud.orig/diamond/diamond/config.py spud.new/diamond/diamond/config.py
 --- spud.orig/diamond/diamond/config.py	2019-06-27 15:43:51.178232155 +0100
 +++ spud.new/diamond/diamond/config.py	2019-06-27 17:20:20.931459833 +0100
@@ -130,6 +160,19 @@ diff --unified --recursive --text spud.orig/diamond/diamond/config.py spud.new/d
    pass
  
  def __set_default(option, value):
+diff --unified --recursive --text spud.orig/diamond/diamond/databuttonswidget.py spud.new/diamond/diamond/databuttonswidget.py
+--- spud.orig/diamond/diamond/databuttonswidget.py	2019-06-27 15:43:51.178232155 +0100
++++ spud.new/diamond/diamond/databuttonswidget.py	2019-06-27 17:49:49.364884586 +0100
+@@ -14,6 +14,9 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import gobject
+ import gtk
 diff --unified --recursive --text spud.orig/diamond/diamond/datatype.py spud.new/diamond/diamond/datatype.py
 --- spud.orig/diamond/diamond/datatype.py	2019-06-27 15:43:51.178232155 +0100
 +++ spud.new/diamond/diamond/datatype.py	2019-06-27 17:20:20.951459748 +0100
@@ -144,8 +187,16 @@ diff --unified --recursive --text spud.orig/diamond/diamond/datatype.py spud.new
    """
 diff --unified --recursive --text spud.orig/diamond/diamond/datawidget.py spud.new/diamond/diamond/datawidget.py
 --- spud.orig/diamond/diamond/datawidget.py	2019-06-27 15:43:51.178232155 +0100
-+++ spud.new/diamond/diamond/datawidget.py	2019-06-27 17:20:21.054792637 +0100
-@@ -19,10 +19,10 @@
++++ spud.new/diamond/diamond/datawidget.py	2019-06-27 17:49:35.081611714 +0100
+@@ -14,15 +14,18 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import gobject
  import gtk
  import pango
  
@@ -160,7 +211,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/datawidget.py spud.n
  
  class DataWidget(gtk.VBox):
  
-@@ -346,7 +346,7 @@
+@@ -346,7 +349,7 @@
        elif value_check != self.node.data:
          self.node.set_data(value_check)
          if (isinstance(self.node, mixedtree.MixedTree)
@@ -171,8 +222,14 @@ diff --unified --recursive --text spud.orig/diamond/diamond/datawidget.py spud.n
             and self.node.datatype.cardinality == "+"):
 diff --unified --recursive --text spud.orig/diamond/diamond/descriptionwidget.py spud.new/diamond/diamond/descriptionwidget.py
 --- spud.orig/diamond/diamond/descriptionwidget.py	2019-06-27 15:43:51.178232155 +0100
-+++ spud.new/diamond/diamond/descriptionwidget.py	2019-06-27 17:20:21.098125784 +0100
-@@ -17,7 +17,7 @@
++++ spud.new/diamond/diamond/descriptionwidget.py	2019-06-27 17:50:13.371449628 +0100
+@@ -14,10 +14,13 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
  
  import gtk
  import re
@@ -183,8 +240,18 @@ diff --unified --recursive --text spud.orig/diamond/diamond/descriptionwidget.py
  class DescriptionWidget(gtk.Frame):
 diff --unified --recursive --text spud.orig/diamond/diamond/dialogs.py spud.new/diamond/diamond/dialogs.py
 --- spud.orig/diamond/diamond/dialogs.py	2019-06-27 15:43:51.178232155 +0100
-+++ spud.new/diamond/diamond/dialogs.py	2019-06-27 17:20:21.148125569 +0100
-@@ -21,7 +21,7 @@
++++ spud.new/diamond/diamond/dialogs.py	2019-06-27 17:50:30.848042313 +0100
+@@ -14,6 +14,9 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import os
+ import sys
+@@ -21,7 +24,7 @@
  
  import gtk
  
@@ -193,7 +260,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/dialogs.py spud.new/
  
  def prompt(parent, message, type = gtk.MESSAGE_QUESTION, has_cancel = False):
    """
-@@ -276,8 +276,8 @@
+@@ -276,8 +279,8 @@
      return ""
  
    def on_goto_activate(self, widget=None):
@@ -206,8 +273,15 @@ diff --unified --recursive --text spud.orig/diamond/diamond/dialogs.py spud.new/
  
 diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new/diamond/diamond/diffview.py
 --- spud.orig/diamond/diamond/diffview.py	2019-06-27 15:43:51.178232155 +0100
-+++ spud.new/diamond/diamond/diffview.py	2019-06-27 17:20:21.281458329 +0100
-@@ -18,7 +18,7 @@
++++ spud.new/diamond/diamond/diffview.py	2019-06-27 17:50:02.348162956 +0100
+@@ -14,11 +14,14 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
  import os
  import os.path
  import sys
@@ -216,7 +290,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
  
  import gobject
  import gtk
-@@ -26,12 +26,12 @@
+@@ -26,12 +29,12 @@
  
  from lxml import etree
  
@@ -234,7 +308,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
  import dxdiff.diff as xmldiff
  
  class DiffView(gtk.Window):
-@@ -180,7 +180,7 @@
+@@ -180,7 +183,7 @@
    def __set_treestore(self, tree, iter = None):
  
      attrib = {}
@@ -243,7 +317,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
        #             (new,   old,   edit)
        attrib[key] = (value, value, None)
  
-@@ -230,7 +230,7 @@
+@@ -230,7 +233,7 @@
        edit = "delete"
  
      if edit == "insert" or edit == "delete":
@@ -252,7 +326,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
          attribs[key] = (valuenew, valueold, edit)
  
        child = self.treestore.iter_children(iter)
-@@ -416,7 +416,7 @@
+@@ -416,7 +419,7 @@
  
      attribstore = gtk.TreeStore(gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)
  
@@ -261,7 +335,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
        attribstore.append(None, [key, new, old, diff])
  
      self.attribview.set_model(attribstore)
-@@ -517,7 +517,7 @@
+@@ -517,7 +520,7 @@
  
      tree = etree.Element(tag)
  
@@ -272,8 +346,18 @@ diff --unified --recursive --text spud.orig/diamond/diamond/diffview.py spud.new
      child_iter = self.treestore.iter_children(iter)
 diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.new/diamond/diamond/interface.py
 --- spud.orig/diamond/diamond/interface.py	2019-06-27 15:43:51.181565474 +0100
-+++ spud.new/diamond/diamond/interface.py	2019-06-27 17:20:21.874789113 +0100
-@@ -21,36 +21,36 @@
++++ spud.new/diamond/diamond/interface.py	2019-06-27 17:57:23.627309186 +0100
+@@ -14,6 +14,9 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import os
+ import os.path
+@@ -21,36 +24,36 @@
  import time
  import sys
  import tempfile
@@ -333,7 +417,24 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
  
  from lxml import etree
  
-@@ -426,7 +426,7 @@
+@@ -157,11 +160,11 @@
+     self.logofile = logofile
+     if self.logofile is not None:
+       for l in self.logofile:
+-		  try:
+-			gtk.window_set_default_icon_from_file(l)
+-			break
+-		  except:
+-		    pass
++        try:
++          gtk.window_set_default_icon_from_file(l)
++          break
++        except:
++          pass
+ 
+     self.init_treemodel()
+ 
+@@ -426,7 +429,7 @@
      if self.suffix is None:
        for xmlname in config.schemata:
          filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
@@ -342,7 +443,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
        filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
      else:
        filter_names_and_patterns[self.suffix] = "*." + self.suffix
-@@ -494,7 +494,7 @@
+@@ -494,7 +497,7 @@
      if self.suffix is None:
        for xmlname in config.schemata:
          filter_names_and_patterns[config.schemata[xmlname][0]] = "*." + xmlname
@@ -351,7 +452,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
        filter_names_and_patterns[config.schemata[self.suffix][0]] = "*." + self.suffix
      else:
        filter_names_and_patterns[self.suffix] = "*." + self.suffix
-@@ -693,7 +693,7 @@
+@@ -693,7 +696,7 @@
        node = self.selected_node    
  
      if node != None and node.active:
@@ -360,7 +461,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
        node.write(ios)
      
        clipboard = gtk.clipboard_get()
-@@ -708,7 +708,7 @@
+@@ -708,7 +711,7 @@
        return
  
      clipboard = gtk.clipboard_get()
@@ -369,7 +470,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
      
      if self.selected_iter is not None:    
        node = self.treestore.get_value(self.selected_iter, 0)
-@@ -1469,12 +1469,12 @@
+@@ -1469,12 +1472,12 @@
      self.plugin_buttonbox.add(button)
  
    def plugin_handler(self, widget, plugin):
@@ -384,7 +485,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/interface.py spud.ne
  
        try:
          tree_read = self.s.read(filename)
-@@ -1926,7 +1926,7 @@
+@@ -1926,7 +1929,7 @@
  
      try:
        # get the iter of the next tree that matches
@@ -494,8 +595,18 @@ diff --unified --recursive --text spud.orig/diamond/diamond/mixedtree.py spud.ne
      return False
 diff --unified --recursive --text spud.orig/diamond/diamond/pygtkconsole.py spud.new/diamond/diamond/pygtkconsole.py
 --- spud.orig/diamond/diamond/pygtkconsole.py	2019-06-27 15:43:51.181565474 +0100
-+++ spud.new/diamond/diamond/pygtkconsole.py	2019-06-27 17:20:22.001455234 +0100
-@@ -15,10 +15,10 @@
++++ spud.new/diamond/diamond/pygtkconsole.py	2019-06-27 17:49:29.471635458 +0100
+@@ -8,6 +8,9 @@
+ #  See www.python.org/2.2/license.htm for
+ #  license details.
+ #
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import gtk
+ import gtk.gdk
+@@ -15,10 +18,10 @@
  import sys
  import pango
  
@@ -508,7 +619,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/pygtkconsole.py spud
  
  banner = """GTK Interactive Python Console
  %s
-@@ -57,7 +57,7 @@
+@@ -57,7 +60,7 @@
      import keyword
      matches = []
      n = len(text)
@@ -651,17 +762,21 @@ diff --unified --recursive --text spud.orig/diamond/diamond/schemausage.py spud.
              name = " (" + grandchild.text + ")"
 diff --unified --recursive --text spud.orig/diamond/diamond/scherror.py spud.new/diamond/diamond/scherror.py
 --- spud.orig/diamond/diamond/scherror.py	2019-06-27 15:43:51.181565474 +0100
-+++ spud.new/diamond/diamond/scherror.py	2019-06-27 17:20:22.264787436 +0100
-@@ -15,7 +15,7 @@
++++ spud.new/diamond/diamond/scherror.py	2019-06-27 17:49:43.214910616 +0100
+@@ -14,8 +14,11 @@
+ #
  #    You should have received a copy of the GNU General Public License
  #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
  
 -import debug
 +from . import debug
  import pango
  import gobject
  import gtk
-@@ -25,8 +25,8 @@
+@@ -25,8 +28,8 @@
  import os
  import re
  
@@ -672,7 +787,7 @@ diff --unified --recursive --text spud.orig/diamond/diamond/scherror.py spud.new
  
  class DiamondSchemaError:
    def __init__(self, parent, gladefile, schema_file, schematron_file):
-@@ -137,7 +137,7 @@
+@@ -137,7 +140,7 @@
          message = " ".join(tokens[7:])
  
          line = sub_tokens[1]
@@ -683,8 +798,15 @@ diff --unified --recursive --text spud.orig/diamond/diamond/scherror.py spud.new
  
 diff --unified --recursive --text spud.orig/diamond/diamond/sliceview.py spud.new/diamond/diamond/sliceview.py
 --- spud.orig/diamond/diamond/sliceview.py	2019-06-27 15:43:51.181565474 +0100
-+++ spud.new/diamond/diamond/sliceview.py	2019-06-27 17:20:22.288120669 +0100
-@@ -18,10 +18,10 @@
++++ spud.new/diamond/diamond/sliceview.py	2019-06-27 17:50:26.234728507 +0100
+@@ -14,14 +14,17 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
  import gobject
  import gtk
  
@@ -1046,8 +1168,17 @@ diff --unified --recursive --text spud.orig/diamond/diamond/triangle_reader.py s
          tvtk_attribute_array.from_array(attribute_array)
 diff --unified --recursive --text spud.orig/diamond/diamond/useview.py spud.new/diamond/diamond/useview.py
 --- spud.orig/diamond/diamond/useview.py	2019-06-27 15:43:51.181565474 +0100
-+++ spud.new/diamond/diamond/useview.py	2019-06-27 17:20:22.598119336 +0100
-@@ -20,7 +20,7 @@
++++ spud.new/diamond/diamond/useview.py	2019-06-27 17:49:56.461521204 +0100
+@@ -14,13 +14,16 @@
+ #
+ #    You should have received a copy of the GNU General Public License
+ #    along with Diamond.  If not, see <http://www.gnu.org/licenses/>.
++from gi import pygtkcompat
++pygtkcompat.enable()
++pygtkcompat.enable_gtk(version='3.0')
+ 
+ import gobject
+ import gtk
  import os
  import threading
  
@@ -1262,3 +1393,4 @@ diff --unified --recursive --text spud.orig/dxdiff/dxdiff/utils.py spud.new/dxdi
        result.append(str(k) + ": " + str(v))
      return ' '.join(result)
    
+Only in spud.new: libspud-git.patch
