@@ -1,0 +1,41 @@
+pkgname='libspud-gtk3-git'
+pkgver=r811.821a8af
+pkgrel=1
+pkgdesc="A generic system for defining, writing and processing options files for scientific computer models. Ported to function with GTK+v3"
+arch=("x86_64")
+url="https://github.com/Carst-model/spud"
+license=('LGPLv2.1')
+depends=("python3" "python-gobject" "python-lxml" "trang" "libxml2")
+makedepends=("make" "git" "gcc")
+provides=("python-dxdiff")
+conflicts=("libspud-bzr")
+source=(
+"_$pkgname::git+https://github.com/Carst-model/spud#branch=gtk3_python3_merged"
+)
+noextract=("_$pkgname")
+
+md5sums=('SKIP')
+
+#prepare() {
+    #cd "$srcdir/_$pkgname"
+    #patch --strip=1 --input="$srcdir/$pkgname.patch"
+#}
+
+pkgver() {
+    cd "$srcdir/_$pkgname"
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd "$srcdir/_$pkgname"
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd "$srcdir/_$pkgname"
+    make DESTDIR="$pkgdir/" install
+    # Remove tinyxml.h since it conflicts with tinyxml
+    # but is identical to the file provided by that package
+    rm "$pkgdir/usr/include/tinyxml.h"
+}

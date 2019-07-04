@@ -1,3 +1,9 @@
-**/*
+**/*.pkg.tar.xz
+**/_*
+**/*.orig
+**/*.new
+**/pkg
+**/src
+!*/.SRCINFO
 !*/PKGBUILD
 !*/*.patch

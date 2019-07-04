@@ -1,0 +1,23 @@
+pkgbase = libspud-gtk3-git
+	pkgdesc = A generic system for defining, writing and processing options files for scientific computer models. Ported to function with GTK+v3
+	pkgver = r811.821a8af
+	pkgrel = 1
+	url = https://github.com/Carst-model/spud
+	arch = x86_64
+	license = LGPLv2.1
+	makedepends = make
+	makedepends = git
+	makedepends = gcc
+	depends = python3
+	depends = python-gobject
+	depends = python-lxml
+	depends = trang
+	depends = libxml2
+	provides = python-dxdiff
+	conflicts = libspud-bzr
+	noextract = _libspud-gtk3-git
+	source = _libspud-gtk3-git::git+https://github.com/Carst-model/spud#branch=gtk3_python3_merged
+	md5sums = SKIP
+
+pkgname = libspud-gtk3-git
+
