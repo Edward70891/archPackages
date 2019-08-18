@@ -1,0 +1,36 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Laura Duffy <email not given>
+pkgname=flyingcarpet
+pkgver=2.0.1
+pkgrel=1
+epoch=
+pkgdesc="Wireless, encrypted file transfer over automatically configured ad hoc networking"
+arch=(x86_64)
+url="https://github.com/spieglt/FlyingCarpet"
+license=('BSD')
+groups=()
+depends=()
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$url/releases/download/v$pkgver/$pkgname.CLI.Linux.zip")
+noextract=()
+md5sums=('cd1f4f2d3db7f38615e47e87a8652c31')
+validpgpkeys=()
+BUILDENV+=('!check')
+
+package() {
+	mkdir -p $pkgdir/usr/bin
+    cp $srcdir/flyingcarpet $pkgdir/usr/bin
+}
