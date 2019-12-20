@@ -1,0 +1,12 @@
+#!/bin/bash
+TERM_COMMAND=$(head "$HOME/.config/exec-with-terminal/command" 2>/dev/null)
+
+if [ "$TERM_COMMAND" == "" ]; then
+    exit 1
+fi
+
+if test -t 0; then
+    "$@"
+else
+    $TERM_COMMAND "$@"
+fi

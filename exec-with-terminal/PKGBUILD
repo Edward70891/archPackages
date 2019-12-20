@@ -1,0 +1,35 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Laura Demkowicz-Duffy <edward70891@gmail.com>
+pkgname=exec-with-terminal
+pkgver=1
+pkgrel=1
+epoch=
+pkgdesc="Execute a cli application, opening a terminal emulator if necessary"
+arch=(x86_64)
+url=""
+license=('GPL')
+groups=()
+depends=(bash)
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$pkgname")
+noextract=()
+md5sums=('effa9f87f5cab80373c249a2e62f6464')
+validpgpkeys=()
+
+package() {
+    install -d $pkgdir/usr/bin
+    install $srcdir/$pkgname $pkgdir/usr/bin/$pkgname
+}
