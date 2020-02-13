@@ -1,31 +1,27 @@
-# This is an example PKGBUILD file. Use this as a start to creating your own,
-# and remove these comments. For more information, see 'man PKGBUILD'.
-# NOTE: Please fill out the license field for your package! If it is unknown,
-# then please put 'unknown'.
-
 # Maintainer: Laura Demkowicz-Duffy
+
 pkgname=pascal-fc
 pkgver=1
 pkgrel=1
 epoch=
-pkgdesc="Pascal FC is an implementation of pascal with extra constructs for teaching concurrent programming, written by Alan Burns and Geoff Davies."
+pkgdesc="An implementation of pascal with extra constructs for teaching concurrent programming"
 arch=('x86_64')
 url="https://github.com/danieljabailey/Pascal-FC"
 license=('GPL')
 depends=('fpc' 'git')
 makedepends=('fpc')
-source=('git+git://github.com/danieljabailey/Pascal-FC')
+source=('pascal-fc::git+git://github.com/danieljabailey/Pascal-FC')
 noextract=()
 md5sums=('SKIP')
 
 build() {
-	cd "Pascal-FC"
+	cd "$pkgname"
 	make pfccomp
 	make pint
 }
 
 package() {
-	cd "Pascal-FC"
+	cd "$pkgname"
 	install -D pfccomp $pkgdir/usr/bin/pfccomp
 	install -D pint $pkgdir/usr/bin/pint
 }
